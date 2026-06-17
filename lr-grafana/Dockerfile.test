@@ -1,0 +1,21 @@
+FROM ubuntu:26.04
+
+# Добавляем python3-venv в список устанавливаемых пакетов
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-venv \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
+
+# Создаем виртуальное окружение в директории /venv
+RUN python3 -m venv /venv
+
+# Добавляем venv в PATH, чтобы система в первую очередь использовала pip и бинарники из него
+ENV PATH="/venv/bin:$PATH"
+
+# Обновляем pip внутри ven
+RUN pip install --upgrade pip && \
+    pip install pytest black
+
+WORKDIR /app
+

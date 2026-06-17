@@ -1,0 +1,52 @@
+networks:
+  grafana-net: {}
+
+services:
+  grafana:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lr-grafana:1.0.0
+    user: "472:472" # grafana user id
+    ports:
+      - "3000:3000"
+    networks:
+      grafana-net: {}
+    restart: unless-stopped
+    environment:
+#      - GF_SERVER_ROOT_URL=http://grafana
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_PLUGINS_PREINSTALL=grafana-clock-panel
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      - GF_RENDERING_RENDERER_TOKEN=secret-renderer-token
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    environment:
+      - AUTH_TOKEN=secret-renderer-token
+
+  grafana-data-source:
+    image: postgres:15.18-trixie
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    networks:
+      grafana-net: { }
+
+  grafana-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    image: lr-grafana-test:1.0.0
+    volumes:
+      - ./:/app
+    command: tail -f /dev/null
+    depends_on:
+      - grafana
+    networks:
+      grafana-net: {}
+
+volumes:
+  grafana-storage: {}

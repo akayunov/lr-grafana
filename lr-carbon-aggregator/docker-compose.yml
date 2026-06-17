@@ -1,0 +1,25 @@
+networks:
+  carbon-aggregator-net: {}
+
+services:
+  carbon-aggregator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lr-carbon-aggregator:1.0.0
+    volumes:
+      - ./conf/aggregation-rules-ivideon.conf:/app/aggregation-rules.conf
+    networks:
+      carbon-aggregator-net: {}
+
+  carbon-aggregator-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    image: lr-carbon-aggregator-test:1.0.0
+    volumes:
+      - ./:/app
+    depends_on:
+      - carbon-aggregator
+    networks:
+      carbon-aggregator-net: {}

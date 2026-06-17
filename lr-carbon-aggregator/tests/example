@@ -1,0 +1,1 @@
+echo "tests-lr-carbon-aggregator.metric.1 4 `date +%s`" | nc -N carbon-aggregator 2023
